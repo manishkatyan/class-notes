@@ -1,22 +1,20 @@
 # post-publish script for BigBlueButton that would run after a class ends and it's recording is processed
 
 require "optimist"
-require File.expand_path("../../../lib/recordandplayback", __FILE__)
+require "psych"
 
 opts = Optimist::options do
   opt :meeting_id, "Meeting id for class notes", :type => String
 end
 meeting_id = opts[:meeting_id]
 
-logger = Logger.new("/var/log/bigbluebutton/post_publish.log", "weekly")
-logger.level = Logger::INFO
-BigBlueButton.logger = logger
+props = Psych.load_file(File.join(__dir__, "../presentation.yml"))
 
-published_files = "/var/bigbluebutton/published/presentation/#{meeting_id}"
-meeting_metadata = BigBlueButton::Events.get_meeting_metadata("/var/bigbluebutton/recording/raw/#{meeting_id}/events.xml")
+recording_path = "/var/bigbluebutton/published/presentation/#{meeting_id}"
+webcams_file_path = "#{recording_path}/video"
+video_format = props["video_formats"][0]
 
-#
-# Put your code here
-#
+ffmped_cmd = "ffmpeg -y -i #{webcams_file_path}/webcams.#{video_format} -vn -acodec pcm_s16le -ar 44100 -ac 2 #{webcams_file_path}/audio.wav"
 
-exit 0
+status = system(ffmped_cmd)
+puts status
