@@ -8,18 +8,43 @@ require "psych"
 require "json"
 require "net/http"
 require "openssl"
+require "fileutils"
+require "bbbevents"
 
 opts = Optimist::options do
   opt :meeting_id, "Meeting id for class notes", :type => String
 end
 meeting_id = opts[:meeting_id]
 
-props = Psych.load_file(File.join(__dir__, "../presentation.yml"))
+if !File.exist?(File.join(__dir__, "./class_notes_config.yml"))
+  puts "Unable to find the config file. Please create a config file with the name #{File.join(__dir__, "class_notes_config.yml")}}"
+  exit 0
+end
+config = Psych.load_file(File.join(__dir__, "class_notes_config.yml"))
+
+puts config
+
+assembly_ai_api_key = config["assembly_ai_api_key"]
+bbb_url = config["bbb_url"]
+video_format = config["bbb_playback_video_format"]
+events_dir = config["bbb_event_dir"]
+
 recording_path = "/var/bigbluebutton/published/presentation/#{meeting_id}"
 webcams_file_path = "#{recording_path}/video"
-video_format = props["video_formats"][0]
+class_notes_file = "#{recording_path}/class_notes.json"
+vtt_file = "#{recording_path}/captions.vtt"
 
-def http_client(uri, method, body = nil)
+events_xml_path = "#{events_dir}/#{meeting_id}/events.xml"
+is_event_xml_exist = File.exist?(events_xml_path)
+
+if !is_event_xml_exist
+  puts "Unable to find the events.xml file. Please check if the events.xml file exists at #{events_xml_path}"
+  exit 0
+end
+
+events_data = BBBEvents.parse(events_xml_path)
+
+def http_client(uri, method, body = nil, assembly_ai_api_key)
   uri = URI(uri)
   http = Net::HTTP.new(uri.host, uri.port)
   http.use_ssl = true
@@ -27,14 +52,14 @@ def http_client(uri, method, body = nil)
   if method == "post"
     request = Net::HTTP::Post.new(
       uri,
-      "authorization" => "e415a85f0b2b49f09da931ae0a6efd80",
+      "authorization" => assembly_ai_api_key,
       "content-type" => "application/json",
     )
   end
   if method == "get"
     request = Net::HTTP::Get.new(
       uri,
-      "authorization" => "e415a85f0b2b49f09da931ae0a6efd80",
+      "authorization" => assembly_ai_api_key,
       "content-type" => "application/json",
     )
   end
@@ -53,7 +78,7 @@ begin
   status = system(ffmped_cmd)
   if status
     assemblyai_options = {
-      "audio_url" => "https://bbb01.quiklrn.net/presentation/#{meeting_id}/video/audio.wav",
+      "audio_url" => "#{bbb_url}/presentation/#{meeting_id}/video/audio.wav",
       "summarization" => true,
       "summary_type" => "bullets",
       "summary_model" => "informative",
@@ -64,7 +89,7 @@ begin
       "sentiment_analysis" => true,
     }
 
-    response = http_client("https://api.assemblyai.com/v2/transcript", "post", assemblyai_options)
+    response = http_client("https://api.assemblyai.com/v2/transcript", "post", assemblyai_options, assembly_ai_api_key)
 
     transcript_id = JSON.parse(response.body)["id"]
     puts transcript_id
@@ -73,7 +98,7 @@ begin
     is_transcription_done = false
 
     while !is_transcription_done
-      response = http_client("https://api.assemblyai.com/v2/transcript/#{transcript_id}", "get")
+      response = http_client("https://api.assemblyai.com/v2/transcript/#{transcript_id}", "get", body = nil, assembly_ai_api_key)
       transcription_data = JSON.parse(response.body)
       puts "Status: #{transcription_data["status"]}"
 
@@ -83,8 +108,28 @@ begin
 
       if transcription_data["status"] == "completed"
         is_transcription_done = true
-        puts "Transcription is ready"
-        puts transcription_data
+
+        # Download vtt file
+        response = http_client("https://api.assemblyai.com/v2/transcript/#{transcript_id}/vtt", "get", body = nil, assembly_ai_api_key)
+        FileUtils.touch(vtt_file) if !File.file? (vtt_file)
+        File.write(vtt_file, response.read_body)
+
+        # Save the transcription data in a json file
+        data_to_write =
+          {
+            "meeting_name" => events_data.metadata["meetingName"],
+            "start_time" => events_data.start,
+            "transcript" => transcription_data["text"],
+            "summary" => transcription_data["summary"],
+            "speaker_labels" => transcription_data["utterances"],
+            "sentiment_analysis_results" => transcription_data["sentiment_analysis_results"],
+          }
+
+        if transcription_data["iab_categories_result"]["status"] == "success"
+          data_to_write["topics"] = transcription_data["iab_categories_result"]
+        end
+        FileUtils.touch(class_notes_file) if !File.file? (class_notes_file)
+        File.write(class_notes_file, data_to_write.to_json)
       end
       sleep(5)
     end
@@ -92,6 +137,6 @@ begin
     exit 0
   end
 rescue => exception
-  puts exception
+  puts "Error: #{exception}"
   exit 0
 end
