@@ -78,7 +78,7 @@ begin
       puts "Status: #{transcription_data["status"]}"
 
       if transcription_data["status"] == "error"
-        raise "Error in transcription"
+        raise "Unable to get the transcription!"
       end
 
       if transcription_data["status"] == "completed"
