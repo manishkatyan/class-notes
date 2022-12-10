@@ -12,6 +12,8 @@
 </a>
 </p>
 
+**DEMO GIF** TBD
+
 <br>
 
 ## Class Notes, powered by AssemblyAI, for BigBlueButton
