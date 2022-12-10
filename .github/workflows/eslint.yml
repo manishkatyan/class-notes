@@ -15,9 +15,9 @@ jobs:
       - uses: actions/setup-node@v2-beta
         with:
           node-version: ${{ matrix.node }}
-      - name: Goto root of the directory
-        run: cd /frontend
       - name: Install dependencies
+        working-directory: ./frontend
         run: npm install
       - name: Run lint
+        working-directory: ./frontend
         run: npm run  lint
