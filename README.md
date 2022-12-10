@@ -28,7 +28,16 @@ The Class Notes plugin is triggered as soon as BigBlueButton completes its proce
 
 Class Notes also lists out topics of  discussion and provide easy navigation to jump off to the section of the class where that topic was discussed.
 
+## ✨ Features
 
+Class Notes provides you automated notes of the online classes that you can easily refer to, at your own pace, to improve your comprehension. Specifically:
+* **MP4 Video with Subtiles.** View the class recording in MP4 format, along with subtitles, which, unlike BigBlueButton recording, plays smoothly in any browser on a laptop or a mobile device.
+* **Transcription.** Below the video, you can read the full transcription of the class, annotated with corresponding time. 
+* **Summary.** Interested in just skimming through the lecture? Just go through the crisp summary of the class in a few bullet points.  
+* **Topics.** Want to learn more about specific topic? View the list of key topics discussed during the class and click on a topic to jump to the corresponding section of the lecture.
+* **Sentiments.** Lastly, get a sense of the tone of the lecturer - postitive, neutraul or negative, with which specific part of the lecture was delivered. 
+
+<br/><br/>
 
 ## Overview: Start converting video files to text
 
@@ -39,13 +48,6 @@ Setting up the application is super easy and can be completed within 10 minutes.
 1. Enter your AssemlyAi API credentials.
 
 That's all you need to do!
-
-<br/><br/>
-
-## ✨ Features
-
-1. Quick installation and setup.
-1. Easily convert your audio and video files into text.
 
 <br/><br/>
 
