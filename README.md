@@ -7,6 +7,14 @@
 
 <br />
 
+<p align="center">
+<a href="https://github.com/manishkatyan/class-notes/actions/workflows/eslint.yml/badge.svg">
+<img src="https://github.com/manishkatyan/class-notes/actions/workflows/eslint.yml/badge.svg" alt="EsLint" />
+</a>
+</p>
+
+<br>
+
 ## Class Notes powered by AssemblyAI
 
 [AssemblyAI](https://www.assemblyai.com/) Transcribe and understand audio with a single AI-powered API.
