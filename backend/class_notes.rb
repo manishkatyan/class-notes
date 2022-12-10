@@ -4,8 +4,7 @@ require "optimist"
 require File.expand_path("../../../lib/recordandplayback", __FILE__)
 
 opts = Optimist::options do
-  opt :meeting_id, "Meeting id to archive", :type => String
-  opt :format, "Playback format name", :type => String
+  opt :meeting_id, "Meeting id for class notes", :type => String
 end
 meeting_id = opts[:meeting_id]
 
