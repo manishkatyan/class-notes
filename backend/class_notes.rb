@@ -10,6 +10,7 @@ meeting_id = opts[:meeting_id]
 
 props = Psych.load_file(File.join(__dir__, "../presentation.yml"))
 
+recording_path = "/var/bigbluebutton/published/presentation/#{meeting_id}"
 webcams_file_path = "#{recording_path}/video"
 video_format = props["video_formats"][0]
 
