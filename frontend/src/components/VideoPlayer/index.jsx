@@ -38,7 +38,6 @@ export const VideoPlayer = ({ options, onReady }) => {
       }
     };
   }, [playerRef]);
-  console.log('VideoPlayer:');
 
   return (
     <div data-vjs-player>
