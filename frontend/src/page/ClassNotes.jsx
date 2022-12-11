@@ -78,7 +78,7 @@ const ClassNotes = () => {
     fluid: true,
     sources: [
       {
-        src: `${AppConfig.bbbServerUrl}/recording/mp4/${meetingId}.mp4`,
+        src: `${AppConfig.bbbServerUrl}/recording/${meetingId}.mp4`,
         type: 'video/mp4',
       },
     ],
