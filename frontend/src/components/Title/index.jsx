@@ -24,7 +24,7 @@ const Title = ({ meetingName, startTime }) => {
 
 Title.propTypes = {
   meetingName: PropTypes.string.isRequired,
-  startTime: PropTypes.instanceOf(Date).isRequired,
+  startTime: PropTypes.string.isRequired,
 };
 
 export default Title;
