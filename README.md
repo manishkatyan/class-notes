@@ -12,8 +12,7 @@
 </a>
 </p>
 
-**DEMO GIF**
-<img style="width: 100%; height: auto;" src="/static/overview.gif" alt="class-notes demo" />
+<img style="width: 100%; height: auto;" src="static/overview.gif" alt="class-notes demo" />
 
 <br>
 
