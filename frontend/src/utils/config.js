@@ -1,6 +1,6 @@
 const AppConfig = {
   // example https://bbb.example.com
-  bbbServerUrl: '',
+  bbbServerUrl: 'https://bbb01.quiklrn.net',
 };
 
 export default AppConfig;

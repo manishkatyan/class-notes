@@ -3,11 +3,13 @@ import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Layout, Space, Row, Col, Card, Divider } from 'antd';
 import { Typography } from 'antd';
+import Mark from 'mark.js';
 import AppConfig from '../utils/config';
 import Title from '../components/Title';
 import VideoPlayer from '../components/VideoPlayer';
 import Topics from '../components/Topics';
 import Summary from '../components/Summary';
+import SpeakerLabel from '../components/SpeakerLabel';
 
 const { Paragraph } = Typography;
 const { Content } = Layout;
@@ -15,20 +17,57 @@ const ClassNotes = () => {
   const [searchParams] = useSearchParams();
   const meetingId = searchParams.get('meetingId');
   const [topicsTag, setTopicsTag] = React.useState('');
+  // const [topicText, setTopicText] = React.useState([]);
   let classNotes = {};
 
   const handleTopicsTagClick = (tag, checked) => {
-    checked ? setTopicsTag(tag) : setTopicsTag('');
+    if (checked) {
+      setTopicsTag(tag);
+      highlight(tag);
+    } else {
+      setTopicsTag('');
+      const elm = document.querySelectorAll('.transcription');
+      const instance = new Mark(elm);
+      instance.unmark();
+    }
   };
 
   if (meetingId) {
     // load json file
     try {
       const data = require(`/var/bigbluebutton/published/presentation/${meetingId}/class_notes.json`);
-      classNotes = { ...data };
+
+      const sanitizedTopics = data.topics.results.map((topic) => {
+        return {
+          text: topic.text,
+          // eslint-disable-next-line no-unused-vars
+          labels: topic.labels.map(({ relevance, ...keep }) => keep.label.split('>').pop()),
+        };
+      });
+      classNotes = { ...data, sanitizedTopics };
     } catch (error) {
       console.log(error);
     }
+  }
+
+  // If there is only single speaker the this function will handle the topic highlighting
+  function highlight(selectedTopic) {
+    let topicTexts = [];
+
+    classNotes.sanitizedTopics.filter((topic) => {
+      if (topic.labels.includes(selectedTopic)) {
+        topicTexts.push(topic.text);
+      }
+    });
+    // highlight text
+    const elm = document.querySelectorAll('.transcription');
+
+    const instance = new Mark(elm);
+    instance.unmark();
+    instance.mark(topicTexts, {
+      separateWordSearch: false,
+      acrossElements: true,
+    });
   }
 
   const videoJsOptions = {
@@ -116,6 +155,67 @@ const ClassNotes = () => {
             <p>No summary available</p>
           )}
           <Divider />
+          {/* transcription  */}
+          <h1
+            style={{
+              fontSize: '1.5rem',
+              fontWeight: 800,
+            }}
+          >
+            Transcription
+          </h1>
+          <span>
+            <span
+              style={{
+                marginRight: '5px',
+                marginLeft: '10px',
+                height: '10px',
+                width: '10px',
+                borderRadius: '50%',
+                backgroundColor: '#F44336',
+                display: 'inline-block',
+              }}
+            ></span>
+            Positive
+          </span>
+          <span>
+            <span
+              style={{
+                marginRight: '5px',
+                marginLeft: '10px',
+                height: '10px',
+                width: '10px',
+                borderRadius: '50%',
+                backgroundColor: '#8BC34A',
+                display: 'inline-block',
+              }}
+            ></span>
+            Negative
+          </span>
+          <span>
+            <span
+              style={{
+                marginRight: '5px',
+                marginLeft: '10px',
+                height: '10px',
+                width: '10px',
+                borderRadius: '50%',
+                backgroundColor: '#D7CCC8',
+                display: 'inline-block',
+              }}
+            ></span>
+            Neutral
+          </span>
+          {classNotes &&
+            classNotes.speaker_labels.map((talk, i) => (
+              <SpeakerLabel
+                key={`${i}`}
+                selectedTopic={topicsTag}
+                talk={talk}
+                sanitizedTopics={classNotes.sanitizedTopics}
+                sentiment={classNotes.sentiment_analysis_results}
+              />
+            ))}
         </Card>
       </Space>
     </Content>
