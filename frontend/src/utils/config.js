@@ -1,3 +1,5 @@
-const AppConfig = {};
+const AppConfig = {
+  bbbServerUrl: '',
+};
 
 export default AppConfig;
