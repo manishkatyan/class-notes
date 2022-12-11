@@ -61,10 +61,10 @@ const ClassNotes = () => {
     });
     // highlight text
     const elm = document.querySelectorAll('.transcription');
-
     const instance = new Mark(elm);
     instance.unmark();
     instance.mark(topicTexts, {
+      className: 'related',
       separateWordSearch: false,
       acrossElements: true,
     });
@@ -92,6 +92,16 @@ const ClassNotes = () => {
       },
     ],
   };
+
+  React.useEffect(() => {
+    if (topicsTag) {
+      const elm = document.querySelectorAll('.related');
+      console.log('Scrolling to element');
+
+      if (elm.length)
+        elm[0].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'nearest' });
+    }
+  }, [topicsTag]);
 
   return (
     <Content style={{ padding: '20px 50px  50px' }}>
