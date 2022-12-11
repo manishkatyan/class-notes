@@ -12,7 +12,9 @@
 </a>
 </p>
 
-<img style="width: 100%; height: auto;" src="https://higheredlab.com/wp-content/uploads/Class_Notes_Demo.gif" alt="class-notes demo" />
+
+### [View Demo](https://higheredlab.com/wp-content/uploads/Class_Notes_Demo.gif)
+
 
 <br>
 
