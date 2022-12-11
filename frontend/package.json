@@ -45,6 +45,7 @@
     "eslint": "^8.29.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-react": "^7.31.11",
-    "prettier": "2.8.1"
+    "prettier": "2.8.1",
+    "video.js": "^7.20.3"
   }
 }
