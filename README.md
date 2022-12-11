@@ -2,7 +2,7 @@
    <img alt="Class Notes Logo" width="60" src="https://higheredlab.com/wp-content/uploads/hel_icon.png">
 </div>
 <h1 align="center">Class Notes</h1>
-<p align="center">Class Notes transcribes online classes with subtitles, summaries, topics and sentiments, enabling students, facing poor internet or language barrier, to learn better, at their own pace.</p>
+<p align="center">Class Notes transcribes online classes with subtitles, summaries, topics and sentiments, enabling students, facing poor internet or language barrier, learn better at their own pace.</p>
 
 <br />
 
