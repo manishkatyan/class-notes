@@ -54,7 +54,7 @@
     "no-console": 0,
     "require-atomic-updates": 0,
     "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "off",
+    "react-hooks/exhaustive-deps": "error",
     "arrow-body-style": 0,
     "arrow-parens": 0,
     "camelcase": 0,
