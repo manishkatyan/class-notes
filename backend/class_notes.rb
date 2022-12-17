@@ -10,19 +10,24 @@ require "net/http"
 require "openssl"
 require "fileutils"
 require "bbbevents"
+require File.expand_path('../../../lib/recordandplayback', __FILE__)
+
+
 
 opts = Optimist::options do
   opt :meeting_id, "Meeting id for class notes", :type => String
 end
 meeting_id = opts[:meeting_id]
 
+logger = Logger.new("/var/log/bigbluebutton/post_publish.log", 'weekly' )
+logger.level = Logger::INFO
+BigBlueButton.logger = logger
+
 if !File.exist?(File.join(__dir__, "./class_notes_config.yml"))
-  puts "Unable to find the config file. Please create a config file with the name #{File.join(__dir__, "class_notes_config.yml")}}"
+  BigBlueButton.logger.info("Unable to find the config file. Please create a config file with the name #{File.join(__dir__, "class_notes_config.yml")}}")
   exit 0
 end
 config = Psych.load_file(File.join(__dir__, "class_notes_config.yml"))
-
-puts config
 
 assembly_ai_api_key = config["assembly_ai_api_key"]
 bbb_url = config["bbb_url"]
@@ -38,11 +43,16 @@ events_xml_path = "#{events_dir}/#{meeting_id}/events.xml"
 is_event_xml_exist = File.exist?(events_xml_path)
 
 if !is_event_xml_exist
-  puts "Unable to find the events.xml file. Please check if the events.xml file exists at #{events_xml_path}"
+  BigBlueButton.logger.info("Unable to find the events.xml file. Please check if the events.xml file exists at #{events_xml_path}")
   exit 0
 end
 
 events_data = BBBEvents.parse(events_xml_path)
+
+if ! events_data.metadata[:class_notes_enabled] == "true"
+  BigBlueButton.logger.info("Class notes not enabled for #{meeting_id}")
+  exit 0
+end
 
 def http_client(uri, method, body = nil, assembly_ai_api_key)
   uri = URI(uri)
@@ -92,7 +102,6 @@ begin
     response = http_client("https://api.assemblyai.com/v2/transcript", "post", assemblyai_options, assembly_ai_api_key)
 
     transcript_id = JSON.parse(response.body)["id"]
-    puts transcript_id
 
     # poll for the transcription
     is_transcription_done = false
@@ -100,13 +109,13 @@ begin
     while !is_transcription_done
       response = http_client("https://api.assemblyai.com/v2/transcript/#{transcript_id}", "get", body = nil, assembly_ai_api_key)
       transcription_data = JSON.parse(response.body)
-      puts "Status: #{transcription_data["status"]}"
 
       if transcription_data["status"] == "error"
         raise "Unable to get the transcription!"
       end
 
       if transcription_data["status"] == "completed"
+        BigBlueButton.logger.info("Transcription in completed for #{meeying_id}")
         is_transcription_done = true
 
         # Download vtt file
@@ -137,6 +146,6 @@ begin
     exit 0
   end
 rescue => exception
-  puts "Error: #{exception}"
+  BigBlueButton.logger.info("Error: #{exception}")
   exit 0
 end
