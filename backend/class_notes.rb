@@ -49,7 +49,7 @@ end
 
 events_data = BBBEvents.parse(events_xml_path)
 
-if ! events_data.metadata[:class_notes_enabled] == "true"
+if events_data.metadata[:class_notes_enabled] != "true"
   BigBlueButton.logger.info("Class notes not enabled for #{meeting_id}")
   exit 0
 end
